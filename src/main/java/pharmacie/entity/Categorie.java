@@ -1,5 +1,6 @@
 package pharmacie.entity;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,5 +35,23 @@ public class Categorie {
 	// pour éviter la boucle infinie si on convertit la catégorie en JSON
 	@JsonIgnoreProperties({"categorie", "lignes"})
 	private List<Medicament> medicaments = new LinkedList<>();
+
+	@ManyToMany(cascade = CascadeType.PERSIST)
+    @JoinTable(
+        name = "categorie_fournisseur", 
+        joinColumns = @JoinColumn(name = "categorie_id"),
+        inverseJoinColumns = @JoinColumn(name = "fournisseur_id")
+    )
+    private Set<Fournisseur> fournisseurs = new HashSet<>();
+
+    // Méthode utilitaire pour lier facilement
+    public void addFournisseur(Fournisseur fournisseur) {
+        this.fournisseurs.add(fournisseur);
+        fournisseur.getCategories().add(this);
+    }
+
+    // Getters et Setters pour fournisseurs
+    public Set<Fournisseur> getFournisseurs() { return fournisseurs; }
+    public void setFournisseurs(Set<Fournisseur> fournisseurs) { this.fournisseurs = fournisseurs; }
 
 }
