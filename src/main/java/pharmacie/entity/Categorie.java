@@ -3,16 +3,37 @@ package pharmacie.entity;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
-@Getter @Setter @NoArgsConstructor @RequiredArgsConstructor @ToString
+@Getter
+@Setter
+@NoArgsConstructor
+@RequiredArgsConstructor
+@ToString
 public class Categorie {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +42,7 @@ public class Categorie {
 
 	@NonNull
 	@Size(min = 1, max = 255)
-	@Column(unique=true, length = 255)
+	@Column(unique = true, length = 255)
 	@NotBlank // pour éviter les libellés vides
 	private String libelle;
 
@@ -30,28 +51,30 @@ public class Categorie {
 	private String description;
 
 	@ToString.Exclude
-	// CascadeType.ALL signifie que toutes les opérations CRUD sur la catégorie sont également appliquées à ses médicaments
-	@OneToMany(cascade = {CascadeType.ALL}, mappedBy = "categorie")
+	// CascadeType.ALL signifie que toutes les opérations CRUD sur la catégorie sont
+	// également appliquées à ses médicaments
+	@OneToMany(cascade = { CascadeType.ALL }, mappedBy = "categorie")
 	// pour éviter la boucle infinie si on convertit la catégorie en JSON
-	@JsonIgnoreProperties({"categorie", "lignes"})
+	@JsonIgnoreProperties({ "categorie", "lignes" })
 	private List<Medicament> medicaments = new LinkedList<>();
 
-	@ManyToMany(cascade = CascadeType.PERSIST)
-    @JoinTable(
-        name = "categorie_fournisseur", 
-        joinColumns = @JoinColumn(name = "categorie_id"),
-        inverseJoinColumns = @JoinColumn(name = "fournisseur_id")
-    )
-    private Set<Fournisseur> fournisseurs = new HashSet<>();
+	@ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+	@JoinTable(name = "categorie_fournisseur", joinColumns = @JoinColumn(name = "categorie_id"), inverseJoinColumns = @JoinColumn(name = "fournisseur_id"))
+	private Set<Fournisseur> fournisseurs = new HashSet<>();
 
-    // Méthode utilitaire pour lier facilement
-    public void addFournisseur(Fournisseur fournisseur) {
-        this.fournisseurs.add(fournisseur);
-        fournisseur.getCategories().add(this);
-    }
+	// Méthode utilitaire pour lier facilement
+	public void addFournisseur(Fournisseur fournisseur) {
+		this.fournisseurs.add(fournisseur);
+		fournisseur.getCategories().add(this);
+	}
 
-    // Getters et Setters pour fournisseurs
-    public Set<Fournisseur> getFournisseurs() { return fournisseurs; }
-    public void setFournisseurs(Set<Fournisseur> fournisseurs) { this.fournisseurs = fournisseurs; }
+	// Getters et Setters pour fournisseurs
+	public Set<Fournisseur> getFournisseurs() {
+		return fournisseurs;
+	}
+
+	public void setFournisseurs(Set<Fournisseur> fournisseurs) {
+		this.fournisseurs = fournisseurs;
+	}
 
 }
