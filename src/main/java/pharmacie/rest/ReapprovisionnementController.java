@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pharmacie.service.ReapprovisionnementService;
 
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(originPatterns = "*")
 @RequestMapping("/api/reapprovisionnement")
 public class ReapprovisionnementController {
 
